@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🐾 Pet Monitor - Flutter App
 
 The **Pet Monitor** is a mobile application built using Flutter to monitor pet health, behavior, and location in real time. It connects with a backend server to fetch sensor readings, GPS coordinates, and behavior classifications while providing a live video feed of the pet's environment.
@@ -52,3 +53,7 @@ The **Pet Monitor** is a mobile application built using Flutter to monitor pet h
 
 
 
+=======
+# Pet_Monitor_Android_App
+Mobile application built using Flutter to monitor pet health
+>>>>>>> afda88ecd56c97ed6f3eeae448984c81f5785dfc
