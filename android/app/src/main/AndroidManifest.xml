@@ -9,7 +9,7 @@
         
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyB9uswd1Fe7T5q1YV4eZdHTAR3KNosxh8w" />
+            android:value="ADD YOUR MAPS KEY" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
