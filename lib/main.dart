@@ -36,13 +36,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
+
+///////////////////////Dynamic Ip ////////////////////////////
+
+
+/////////////////////////////
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   double temperature = 0.0;
   double humidity = 0.0;
@@ -50,7 +55,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String movement = 'Unknown';
   String classification = 'None';
   bool isRunning = false;
-  bool isConnected = true;
+  bool isConnected = false;
+  String ipAddress = '192.168.1.209'; // Initial IP address
 
   Timer? _timer;
 
@@ -74,12 +80,53 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
+  ////////////////// Update IP Address page  ///////////////////////////////////////
+  void updateIpAddress(String newIp) {
+    setState(() {
+      ipAddress = newIp;
+    });
+  }
+
+  Future<void> _showIpDialog(BuildContext context) async {
+    String newIp = '';
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter IP Address'),
+          content: TextField(
+            onChanged: (value) {
+              newIp = value;
+            },
+            decoration: InputDecoration(hintText: "Enter new IP address"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                if (newIp.isNotEmpty) {
+                  updateIpAddress(newIp);
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   ////////////////// Monitor Update and save report section ///////////////////////////////////////
   int reportCounter = 0; // Counter for total data points processed
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.1.209:5000/status'));
+      final response = await http.get(Uri.parse('http://$ipAddress:5000/status'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -215,7 +262,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Future<void> saveLogToServer(Map<String, dynamic> report) async {
-    const url = "http://192.168.1.209:5000/save_report"; // Flask endpoint
+    final url = "http://$ipAddress:5000/save_report"; // Flask endpoint
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -236,6 +283,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
 
   ////////////////// Main Page layout ///////////////////////////////////////
+
+  //// pops up menu ////
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -248,22 +297,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               if (value == 'Reboot') {
                 rebootDevice();
               }
+              else if (value == 'Change IP') {
+                _showIpDialog(context);
+              }
+            },
+
+            itemBuilder: (BuildContext context) {
+              return {'Reboot', 'Change IP'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
             },
             icon: const Icon(Icons.more_vert, color: Colors.white),
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: 'Reboot',
-                  child: Row(
-                    children: const [
-                      Icon(Icons.restart_alt, color: Colors.redAccent),
-                      SizedBox(width: 8),
-                      Text('Reboot Device', style: TextStyle(color: Colors.redAccent)),
-                    ],
-                  ),
-                ),
-              ];
-            },
+
           ),
         ],
       ),
@@ -330,10 +378,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   Icons.camera_alt,
                   onPressed: () {
                     print("Camera button pressed");
-                    //String streamUrl = "http://192.168.1.209:5000/camera_stream";
+                    //String streamUrl = "http://$ipAddress:5000/camera_stream";
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => CameraStreamPage(),
+                      MaterialPageRoute(builder: (context) => CameraStreamPage(ipAddress: ipAddress),
                       ),
                     );
                   },
@@ -346,7 +394,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GpsMapPage(),
+                        builder: (context) => GpsMapPage(ipAddress: ipAddress),
                       ),
                     );
                   },
@@ -528,6 +576,9 @@ class MonitorReportScreen extends StatelessWidget {
 
 //////////////////////////widget to display a web page within a Flutter app using WebView////////////////////////////////////////
 class CameraStreamPage extends StatelessWidget {
+  final String ipAddress;
+  const CameraStreamPage({Key? key, required this.ipAddress}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -535,7 +586,8 @@ class CameraStreamPage extends StatelessWidget {
         title: Text('Camera Stream'),
       ),
       body: WebView(
-        initialUrl: 'http://192.168.1.209:5000/camera_stream', // Replace with your Flask server IP
+        initialUrl: 'http://$ipAddress:5000/camera_stream',
+
         javascriptMode: JavascriptMode.unrestricted,
       ),
     );
@@ -545,6 +597,10 @@ class CameraStreamPage extends StatelessWidget {
 
 
 class GpsMapPage extends StatefulWidget {
+  final String ipAddress;
+
+  const GpsMapPage({Key? key, required this.ipAddress}) : super(key: key);
+
   @override
   _GpsMapPageState createState() => _GpsMapPageState();
 }
@@ -572,7 +628,7 @@ class _GpsMapPageState extends State<GpsMapPage> {
 
   // control the gps active flag in main.py
   Future<void> setGpsNavigating(bool status) async {
-    const url = "http://192.168.1.209:5000/set_gps_navigating"; // Replace with your Flask server's IP
+    final url = "http://${widget.ipAddress}:5000/set_gps_navigating"; // Replace with your Flask server's IP
     try {
       await http.post(
         Uri.parse(url),
@@ -585,7 +641,7 @@ class _GpsMapPageState extends State<GpsMapPage> {
   }
 
   Future<void> fetchAndUpdateLocation() async {
-    const url = "http://192.168.1.209:5000/gps_coordinates"; // Replace with your Flask server's IP
+    final url = "http://${widget.ipAddress}:5000/gps_coordinates"; // Replace with your Flask server's IP
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
