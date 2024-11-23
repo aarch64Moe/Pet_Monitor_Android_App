@@ -52,8 +52,3 @@ The **Pet Monitor** is a mobile application built using Flutter to monitor pet h
    cd Pet_Monitor_App
 
 
-
-=======
-# Pet_Monitor_Android_App
-Mobile application built using Flutter to monitor pet health
->>>>>>> afda88ecd56c97ed6f3eeae448984c81f5785dfc
