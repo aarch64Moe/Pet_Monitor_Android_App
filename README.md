@@ -53,16 +53,16 @@ The **Pet Monitor** is a mobile application built using Flutter to monitor pet h
 
 ## Screenshots
 ### Main Page Offline
-![Main Page Offline](pictuers/Offline.png)
+![Main Page Offline](pictures/Offline.png)
 
 ### Main Page Online
-![Main Page Online](pictuers/Online.png)
+![Main Page Online](pictures/Online.png)
 
 ### Camera Page 
-![Camera Page](pictuers/Camera.png)
+![Camera Page](pictures/Camera.png)
 
 ### GPS Page 
-![GPS Page](pictuers/GPS.png)
+![GPS Page](pictures/GPS.png)
 
 ### Manitor Page 
-![Manitor Page](pictuers/Monitor_Report.png)
+![Manitor Page](pictures/Monitor_Report.png)
